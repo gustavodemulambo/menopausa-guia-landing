@@ -224,11 +224,22 @@ table.planos .rec{background:var(--rosa);color:var(--vinho-esc);font-weight:700;
 const CHECKOUT_COMPLETO = 'https://go.perfectpay.com.br/PPU38CQHOKD';
 const CHECKOUT_ESSENCIAL = 'https://go.perfectpay.com.br/PPU38CQHSI6'; // Plano R$ 97 (Menopausa - Guia Pratico)
 
+// Repassa as UTMs da landing para o checkout (atribuição)
+const UTM_KEYS = ['utm_source','utm_medium','utm_campaign','utm_content'];
+function withUtm(baseUrl){
+  const incoming = new URLSearchParams(window.location.search);
+  const out = new URLSearchParams();
+  UTM_KEYS.forEach(k => { const v = incoming.get(k); if(v) out.set(k, v); });
+  const qs = out.toString();
+  if(!qs) return baseUrl;
+  return baseUrl + (baseUrl.includes('?') ? '&' : '?') + qs;
+}
+
 function goCheckout(plano, e){
   if(e) e.preventDefault();
-  const url = plano === 'essencial' ? CHECKOUT_ESSENCIAL : CHECKOUT_COMPLETO;
+  const base = plano === 'essencial' ? CHECKOUT_ESSENCIAL : CHECKOUT_COMPLETO;
   if(typeof fbq === 'function'){ fbq('track','InitiateCheckout'); }
-  window.location.href = url;
+  window.location.href = withUtm(base);
 }
 </script>
 </body>
